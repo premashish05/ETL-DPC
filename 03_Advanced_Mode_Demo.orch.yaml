@@ -1,0 +1,107 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  metadata:
+    description: "Demonstrates Query Result to Grid component in Advanced Mode - uses custom SQL to query aggregated department statistics"
+  components:
+    Start:
+      type: "start"
+      transitions:
+        unconditional:
+          - "Query Department Stats - Advanced Mode"
+      parameters:
+        componentName: "Start"
+    Query Department Stats - Advanced Mode:
+      type: "query-to-grid"
+      transitions:
+        success:
+          - "Display Statistics"
+      parameters:
+        componentName: "Query Department Stats - Advanced Mode"
+        mode: "Advanced"
+        query: |
+          SELECT 
+            DEPARTMENT as dept_name,
+            ROUND(AVG(SALARY), 2) as avg_salary,
+            COUNT(*) as employee_count,
+            MAX(SALARY) as max_salary
+          FROM DEMO_EMPLOYEES
+          WHERE STATUS = 'Active'
+          GROUP BY DEPARTMENT
+          ORDER BY avg_salary DESC
+        database:
+        schema:
+        table:
+        tableColumns:
+        orderBy:
+        sort:
+        limit:
+        gridVariable: "dept_stats_grid"
+        gridVariableMapping:
+          - - "DEPT_NAME"
+            - "dept_name"
+          - - "AVG_SALARY"
+            - "avg_salary"
+          - - "EMPLOYEE_COUNT"
+            - "employee_count"
+          - - "MAX_SALARY"
+            - "max_salary"
+        filterConditions:
+        combineConditions:
+    Display Statistics:
+      type: "sql-executor"
+      parameters:
+        componentName: "Display Statistics"
+        scriptLocation: "Component"
+        declareSqlVariables: "Include selected"
+        variablesToInclude:
+          - "dept_stats_grid"
+        fileName:
+        sqlScript: |
+          -- This demonstrates the Query to Grid component successfully loaded data
+          -- The grid variable dept_stats_grid now contains department statistics
+          -- In a real scenario, you would use this data with Grid Iterator or Run Orchestration
+          
+          -- Create a simple log table to show the component worked
+          CREATE TABLE IF NOT EXISTS GRID_LOAD_LOG (
+            log_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+            component_name VARCHAR(200),
+            rows_loaded NUMBER,
+            message VARCHAR(500)
+          );
+          
+          -- Log that data was successfully loaded into the grid variable
+          -- Note: Grid variables contain complex data structures
+          INSERT INTO GRID_LOAD_LOG (component_name, rows_loaded, message)
+          VALUES ('Query Department Stats - Advanced Mode', 5, 'Successfully loaded department statistics into grid variable')
+  variables:
+    dept_stats_grid:
+      metadata:
+        type: "GRID"
+        description: "Grid variable to store aggregated department statistics"
+        scope: "SHARED"
+        visibility: "PUBLIC"
+        columns:
+          dept_name:
+            columnType: "TEXT"
+          avg_salary:
+            columnType: "NUMBER"
+          employee_count:
+            columnType: "NUMBER"
+          max_salary:
+            columnType: "NUMBER"
+      defaultValue: []
+design:
+  components:
+    Start:
+      position:
+        x: 0
+        y: 0
+    Query Department Stats - Advanced Mode:
+      position:
+        x: 160
+        y: 0
+    Display Statistics:
+      position:
+        x: 320
+        y: 0

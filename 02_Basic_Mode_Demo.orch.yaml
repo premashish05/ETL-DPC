@@ -1,0 +1,167 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  metadata:
+    description: "Demonstrates Query Result to Grid component in Basic Mode - queries\
+      \ employee data and loads it into a grid variable"
+  components:
+    Start:
+      type: "start"
+      transitions:
+        unconditional:
+        - "Query High Earners - Basic Mode"
+      parameters:
+        componentName: "Start"
+    Query High Earners - Basic Mode:
+      type: "query-to-grid"
+      transitions:
+        success:
+        - "Process Each Employee"
+      parameters:
+        componentName: "Query High Earners - Basic Mode"
+        mode: "Basic"
+        query: null
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        table: "DEMO_EMPLOYEES"
+        tableColumns:
+        - "EMPLOYEE_ID"
+        - "FIRST_NAME"
+        - "LAST_NAME"
+        - "DEPARTMENT"
+        - "SALARY"
+        orderBy:
+        - "SALARY"
+        sort: "Descending"
+        limit: "10"
+        gridVariable: "employee_data_grid"
+        gridVariableMapping:
+        - - "EMPLOYEE_ID"
+          - "employee_id"
+        - - "FIRST_NAME"
+          - "first_name"
+        - - "LAST_NAME"
+          - "last_name"
+        - - "DEPARTMENT"
+          - "department"
+        - - "SALARY"
+          - "salary"
+        filterConditions:
+        - - "SALARY"
+          - "Is"
+          - "Greater than or equal to"
+          - "90000"
+        - - "STATUS"
+          - "Is"
+          - "Equal to"
+          - "Active"
+        combineConditions: "And"
+    Process Each Employee:
+      type: "grid-iterator"
+      iterationTarget: "Create Employee Report Table"
+      parameters:
+        componentName: "Process Each Employee"
+        gridVariable: "employee_data_grid"
+        gridIteratorVariableMapping:
+          - - "employee_id"
+            - "current_employee_id"
+          - - "first_name"
+            - "current_employee_name"
+          - - "department"
+            - "current_department"
+          - - "salary"
+            - "current_salary"
+        breakOnFailure: "No"
+        concurrency: "Sequential"
+    Create Employee Report Table:
+      type: "sql-executor"
+      parameters:
+        componentName: "Create Employee Report Table"
+        scriptLocation: "Component"
+        declareSqlVariables: "Include selected"
+        variablesToInclude:
+          - "current_employee_id"
+          - "current_employee_name"
+          - "current_department"
+          - "current_salary"
+        fileName:
+        sqlScript: |
+          -- Create a report table showing grid variable data usage
+          CREATE TABLE IF NOT EXISTS EMPLOYEE_REPORTS (
+            report_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+            employee_id NUMBER,
+            employee_name VARCHAR(200),
+            department VARCHAR(50),
+            annual_salary NUMBER(12,2)
+          );
+          
+          -- Insert current employee from grid iteration
+          INSERT INTO EMPLOYEE_REPORTS (employee_id, employee_name, department, annual_salary)
+          VALUES ($current_employee_id, $current_employee_name, $current_department, $current_salary)
+  variables:
+    employee_data_grid:
+      metadata:
+        type: "GRID"
+        description: "Grid variable to store queried employee data"
+        scope: "SHARED"
+        visibility: "PUBLIC"
+        columns:
+          employee_id:
+            columnType: "NUMBER"
+          first_name:
+            columnType: "TEXT"
+          last_name:
+            columnType: "TEXT"
+          department:
+            columnType: "TEXT"
+          salary:
+            columnType: "NUMBER"
+      defaultValue: []
+    current_employee_id:
+      metadata:
+        type: "NUMBER"
+        description: "Stores current employee ID during iteration"
+        scope: "COPIED"
+        visibility: "PRIVATE"
+      defaultValue: "0"
+    current_employee_name:
+      metadata:
+        type: "TEXT"
+        description: "Stores current employee full name during iteration"
+        scope: "COPIED"
+        visibility: "PRIVATE"
+      defaultValue: ""
+    current_department:
+      metadata:
+        type: "TEXT"
+        description: "Stores current department during iteration"
+        scope: "COPIED"
+        visibility: "PRIVATE"
+      defaultValue: ""
+    current_salary:
+      metadata:
+        type: "NUMBER"
+        description: "Stores current salary during iteration"
+        scope: "COPIED"
+        visibility: "PRIVATE"
+      defaultValue: "0"
+design:
+  components:
+    Start:
+      position:
+        x: 0
+        "y": 0
+      tempMetlId: null
+    Query High Earners - Basic Mode:
+      position:
+        x: 160
+        "y": 0
+      tempMetlId: null
+    Process Each Employee:
+      position:
+        x: 320
+        y: 0
+    Create Employee Report Table:
+      position:
+        x: 320
+        y: 0

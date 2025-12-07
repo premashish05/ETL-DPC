@@ -1,0 +1,140 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  metadata:
+    description: "Setup pipeline that creates sample employee data for Query Result to Grid demonstrations"
+  components:
+    Start:
+      type: "start"
+      transitions:
+        unconditional:
+          - "Create Employees Table"
+      parameters:
+        componentName: "Start"
+    Create Employees Table:
+      type: "create-table-v2"
+      transitions:
+        success:
+          - "Insert Sample Employee Data"
+      parameters:
+        componentName: "Create Employees Table"
+        createMethod: "Replace"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        table: "DEMO_EMPLOYEES"
+        snowflakeTableType: "Permanent"
+        columns:
+          - - "EMPLOYEE_ID"
+            - "NUMBER"
+            - "10"
+            - "0"
+            - ""
+            - "Yes"
+            - "Yes"
+            - "Unique employee identifier"
+            - ""
+          - - "FIRST_NAME"
+            - "VARCHAR"
+            - "100"
+            - ""
+            - ""
+            - "Yes"
+            - "No"
+            - "Employee first name"
+            - ""
+          - - "LAST_NAME"
+            - "VARCHAR"
+            - "100"
+            - ""
+            - ""
+            - "Yes"
+            - "No"
+            - "Employee last name"
+            - ""
+          - - "DEPARTMENT"
+            - "VARCHAR"
+            - "50"
+            - ""
+            - ""
+            - "Yes"
+            - "No"
+            - "Department name"
+            - ""
+          - - "SALARY"
+            - "NUMBER"
+            - "12"
+            - "2"
+            - ""
+            - "Yes"
+            - "No"
+            - "Annual salary"
+            - ""
+          - - "HIRE_DATE"
+            - "DATE"
+            - ""
+            - ""
+            - ""
+            - "Yes"
+            - "No"
+            - "Date of hire"
+            - ""
+          - - "STATUS"
+            - "VARCHAR"
+            - "20"
+            - ""
+            - ""
+            - "Yes"
+            - "No"
+            - "Employment status"
+            - ""
+        defaultDdlCollation:
+        primaryKeys:
+          - "EMPLOYEE_ID"
+        clusteringKeys:
+        dataRetentionTimeInDays:
+        comment: "Demo employee data for Query Result to Grid examples"
+    Insert Sample Employee Data:
+      type: "sql-executor"
+      parameters:
+        componentName: "Insert Sample Employee Data"
+        scriptLocation: "Component"
+        declareSqlVariables:
+        variablesToInclude:
+        fileName:
+        sqlScript: |
+          INSERT INTO DEMO_EMPLOYEES (EMPLOYEE_ID, FIRST_NAME, LAST_NAME, DEPARTMENT, SALARY, HIRE_DATE, STATUS)
+          VALUES
+            (101, 'John', 'Smith', 'Engineering', 95000.00, '2020-03-15', 'Active'),
+            (102, 'Sarah', 'Johnson', 'Marketing', 78000.00, '2019-07-22', 'Active'),
+            (103, 'Michael', 'Williams', 'Engineering', 102000.00, '2018-01-10', 'Active'),
+            (104, 'Emily', 'Brown', 'Sales', 85000.00, '2021-05-18', 'Active'),
+            (105, 'David', 'Jones', 'Engineering', 92000.00, '2020-11-03', 'Active'),
+            (106, 'Jessica', 'Garcia', 'HR', 72000.00, '2019-09-14', 'Active'),
+            (107, 'James', 'Miller', 'Finance', 88000.00, '2018-06-20', 'Active'),
+            (108, 'Linda', 'Davis', 'Marketing', 81000.00, '2021-02-08', 'Active'),
+            (109, 'Robert', 'Rodriguez', 'Sales', 90000.00, '2019-12-01', 'Active'),
+            (110, 'Patricia', 'Martinez', 'Engineering', 98000.00, '2020-08-25', 'Active'),
+            (111, 'Christopher', 'Hernandez', 'HR', 68000.00, '2022-01-15', 'Active'),
+            (112, 'Barbara', 'Lopez', 'Finance', 91000.00, '2018-04-12', 'Active'),
+            (113, 'Daniel', 'Gonzalez', 'Engineering', 105000.00, '2017-11-28', 'Active'),
+            (114, 'Nancy', 'Wilson', 'Marketing', 76000.00, '2021-09-05', 'Active'),
+            (115, 'Paul', 'Anderson', 'Sales', 87000.00, '2019-03-19', 'Active'),
+            (116, 'Karen', 'Thomas', 'Engineering', 94000.00, '2020-06-30', 'Inactive'),
+            (117, 'Mark', 'Taylor', 'HR', 71000.00, '2022-04-11', 'Active'),
+            (118, 'Betty', 'Moore', 'Finance', 89000.00, '2018-10-07', 'Active'),
+            (119, 'Donald', 'Jackson', 'Marketing', 79000.00, '2021-07-22', 'Active'),
+            (120, 'Michelle', 'Martin', 'Sales', 92000.00, '2019-05-16', 'Inactive')
+design:
+  components:
+    Start:
+      position:
+        x: 0
+        y: 0
+    Create Employees Table:
+      position:
+        x: 160
+        y: 0
+    Insert Sample Employee Data:
+      position:
+        x: 320
+        y: 0
